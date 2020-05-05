@@ -1,0 +1,17 @@
+.App {
+  text-align: center;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+}
+
+.particles {/*沒寫這個就會全部遮掉0.,0*/
+  position: fixed;/*就算滾動頁面, 每個元素還是會維持一樣,*/
+  top: 0;/*叫做"z-index", 你要把圖片放在哪一層(?)*/
+  right: 0;
+  bottom: 0;
+  left:  0;
+  z-index: -1;/*因為要放在全部後面(就背景啦)*/ 
+  }
