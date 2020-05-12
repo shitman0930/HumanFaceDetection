@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Particles from 'react-particles-js';
-import Clarifai from 'clarifai';//就從這邊抓取臉部辨識的API
 import Navigation from './components/Navigation/Navigation';
 import Signin from './components/Signin/Signin';
 import Register from './components/Register/Register';
@@ -9,10 +8,6 @@ import Logo from './components/Logo/Logo';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import Rank from './components/Rank/Rank';
 import './App.css';
-
-const app = new Clarifai.App({//就都從網站複製貼上的
- apiKey: '38084e90f9634ccd9efb9fb0a13b823c'
-});
 
 const particlesOptions = {
   particles: {//這一段就要自己了解一下particlesJS
@@ -26,17 +21,42 @@ const particlesOptions = {
   }
 }
 
-class App extends Component {
-  constructor() {//就設定state
-    super();
-    this.state = {
+const initialState = {//就每次登入保持初始狀態 不會有上一個人貼過的圖片留著
        input: '',
        imageUrl: '',//跟input互相影響
        box:{}, //這就抓取臉部的方形box
-       route: 'signin',//這會追蹤我們在哪個頁面
-       isSignedIn: false
+       route: 'signin',//首頁就設定在登入頁面
+       isSignedIn: false,//預設為登出
+       user: {//284加上的user, 後端server.js抄來的, 通通empty, 有人註冊就會新增
+       id:'',
+       name: '',
+       email: '',
+       entries: 0,
+       joined: ''
+       }
     }
+
+class App extends Component {
+  constructor() {//就設定state
+    super();
+    this.state = initialState;
   }
+
+loadUser = (data) => {//從register.js抓取數據, 回應上面寫的this.state裡的user
+  this.setState({user: {
+    id: data.id,
+    name: data.name,
+    email: data.email,
+    entries: data.entries,
+    joined: data.joined
+  }})
+}
+
+  // componentDidMount() {就測試有沒有跟後端連接
+  //   fetch('http://localhost:3001/')
+  //   .then(response => response.json())
+  //   .then(console.log)
+  // }
 
   calculateFaceLocation = (data) =>{//自創一個抓取臉部的功能
        const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -59,25 +79,40 @@ class App extends Component {
      this.setState({input:event.target.value});//state一更新 就輸出這邊的值
   }
 
-  onButtonSubmit = () => {
+  onPictureSubmit = () => {
     this.setState({imageUrl:this.state.input})//當imageurl改變就更新state
-    app.models
-      .predict(
-      // Clarifai.COLOR_MODEL,//直接去原始碼抓model,會在console裡的output的data裡的color裡顯示圖片的顏色百分比組成
-      Clarifai.FACE_DETECT_MODEL,//我們要用的是這個model, output/data/regions/region_info/bounding_box 會有各部份組成百分比
-     // "a403429f2ddf4b49b307e318f00e528b", //api key, 可以免費點5000次/月
-      this.state.input)//這邊改成this.state.imageUrl會有錯 
-//因為setState的特有語法,由於各種原因(主要是性能），在React中調用setState()是異步的。在幕後，React會將對setState()的多個調用分批處理到一個調用中，然後一次重新渲染該組件，而不是針對每個狀態更改都重新渲染(這是AJAX)。因此，imageUrl參數在我們的示例中將永遠無法工作，因為當我們使用預測函數調用Clarifai時，React尚未完成狀態的更新。
-//解決此問題的一種方法是使用回調函數：
-//setState(updater, callback)
-    .then(response => this.displayFacebox(this.calculateFaceLocation(response)))//回應抓取的臉部
+     fetch('http://localhost:3001/imageurl', {
+          method:'post',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            input:this.state.input//只回傳這個就可以了
+        })
+      })//fetch就會有.then joson()
+     .then(response => response.json())
+    .then(response => {
+      if(response) {
+        fetch('http://localhost:3001/image', {//就Signin.js抄來的改一下
+          method:'put',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            id:this.state.user.id//只回傳這個就可以了
+        })
+      })
+        .then(response =>response.json())
+        .then(count => {
+          this.setState(Object.assign(this.state.user, {entries: count}))
+        })
+        .catch(console.log)//error handing, 不要有我們未知的錯誤發生
+      }  
+      this.displayFacebox(this.calculateFaceLocation(response))
+    })//回應抓取的臉部
     .catch(err => console.log(err));
   }
 
   onRouteChange = (route) => {//也是自創功能, 重點就頁面切換
     if(route === 'signout') {//如果在登出頁面的話,登入就為假
-      this.setState({isSignedIn: false})
-    } else if (route === 'home') {//如果在首頁的話, 登入就為真(要登入才能貼圖片網址看辨識)
+      this.setState(initialState)
+    } else if (route === 'home') {//如果在home的話, 登入就為真(要登入才能貼圖片網址看辨識)
       this.setState({isSignedIn: true})
     }
     this.setState({route: route});
@@ -91,20 +126,20 @@ class App extends Component {
               params={particlesOptions}//設定props
           />
       <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
-      {route === 'home' //如果在首頁的話 就回應有大腦 排名 input那一頁 
+      {route === 'home' //如果在home的話 就回應有大腦 排名 input那一頁 
       ? <div>
           <Logo />
-          <Rank />
+          <Rank name={this.state.user.name} entries={this.state.user.entries} />
           <ImageLinkForm 
           onInputChange={this.onInputChange}//設定props
-          onButtonSubmit={this.onButtonSubmit}//設定pros
+          onPictureSubmit={this.onPictureSubmit}//設定props
           />
           <FaceRecognition box={box} imageUrl={imageUrl}/>
         </div>
-      :(//不然就是停在登入註冊那一頁
+      :(//不然就是停在登入註冊頁面
         route === 'signin' 
-        ? <Signin onRouteChange={this.onRouteChange} />
-        : <Register onRouteChange={this.onRouteChange} />
+        ? <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
+        : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
        )
       
         }

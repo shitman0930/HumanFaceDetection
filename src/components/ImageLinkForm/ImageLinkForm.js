@@ -1,11 +1,11 @@
 import React from 'react';
 import './ImageLinkForm.css';
 
-const ImageLinkForm = ({ onInputChange, onButtonSubmit }) => {//props已經在App.js設定過了, 所以直接寫onIput...即可
+const ImageLinkForm = ({ onInputChange, onPictureSubmit }) => {//props已經在App.js設定過了, 所以直接寫onIput...即可
 	return (
 	  <div>
 		<p className='f3'>
-		{'這可以識別你圖片位址中的臉部，試一下吧！'}
+		{'這可以識別你圖片位址中的人類臉部，試一下吧！'}
 		</p>
 		<div className='center'>
 		   <div className='form center pa4 br3 shadow-5'>
@@ -13,7 +13,7 @@ const ImageLinkForm = ({ onInputChange, onButtonSubmit }) => {//props已經在Ap
 			  />
 			 <button 
 			   className='w-30 grow f4 white bg-light-purple'
-               onClick={onButtonSubmit}//onClick就react內建的語法(event)?
+               onClick={onPictureSubmit}//onClick就react內建的語法(event)?
 			 >辨識臉部</button> 
 		   </div>
 		</div>

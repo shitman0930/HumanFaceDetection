@@ -1,14 +1,14 @@
 import React from 'react';
 
 
-const Rank = () => {
+const Rank = ({ name, entries }) => {
 	return (
 	  <div>
         <div className='white f3'>
-        {'阿朱金寶爺兒，你目前的排名是...'}
+        {`${name} , 您輸入的圖片位址次數目前是...`}
         </div>
         <div className='white f1'>
-        {'#2'}
+        {entries}
         </div>
 	  </div>
 	);
