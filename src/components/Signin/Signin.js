@@ -1,7 +1,7 @@
 import React from 'react';
 
 
-class Signin extends React.Component  {//signin雖然是App.js的child, 但它也可以自己創造造state! 好處就是APP不會太多程式碼
+class Signin extends React.Component  {//signin雖然是App.js的child, 但它也可以自己創造state! 好處就是APP不會太多程式碼
 	constructor(props) {//因為要回應props
 		super(props);
 		this.state = {
@@ -19,7 +19,7 @@ class Signin extends React.Component  {//signin雖然是App.js的child, 但它�
 	}
 
 	onSubmitSignIn = () => {//自創功能, 回傳上面2個功能的值
-       fetch('http://localhost:3001/signin', {//傳回伺服器
+       fetch('https://powerful-hamlet-57243.herokuapp.com/signin', {//傳回伺服器
        	 method:'post',//默認是GET
        	 headers: {'Content-Type': 'application/json'},//回傳json格式
        	 body: JSON.stringify({//沒寫後端就無法讀取
@@ -29,7 +29,7 @@ class Signin extends React.Component  {//signin雖然是App.js的child, 但它�
        })
        .then(response => response.json())
        .then(user => {
-       	if(user.id) {
+       	if(user.id) {//
        		this.props.loadUser(user);
        		this.props.onRouteChange('home');
        	}
@@ -37,13 +37,13 @@ class Signin extends React.Component  {//signin雖然是App.js的child, 但它�
 	}
 	
 	render() {
-		const { onRouteChange } = this.props;
+		// const { onRouteChange } = this.props;沒寫也沒事??
 		return (//要改一下input的格式 />才會正常
 			<article className="br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">
 			  <main className="pa4 black-80">
 			    <div className="measure">
 			      <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
-			        <legend className="f3 fw6 ph0 mh0">登 入</legend>
+			        <legend className="f2 fw6 ph0 mh0">登 入</legend>
 			        <div className="mt3">
 			          <label className="db fw6 lh-copy f6" htmlFor="email-address">電子郵件</label>
 			          <input 

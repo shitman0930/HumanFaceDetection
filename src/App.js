@@ -25,7 +25,7 @@ const initialState = {//就每次登入保持初始狀態 不會有上一個人�
        input: '',
        imageUrl: '',//跟input互相影響
        box:{}, //這就抓取臉部的方形box
-       route: 'signin',//首頁就設定在登入頁面
+       route: 'signin',//首頁就設定在登入頁面 可是登出都跑到註冊頁面~"~
        isSignedIn: false,//預設為登出
        user: {//284加上的user, 後端server.js抄來的, 通通empty, 有人註冊就會新增
        id:'',
@@ -81,7 +81,7 @@ loadUser = (data) => {//從register.js抓取數據, 回應上面寫的this.state
 
   onPictureSubmit = () => {
     this.setState({imageUrl:this.state.input})//當imageurl改變就更新state
-     fetch('http://localhost:3001/imageurl', {
+     fetch('https://powerful-hamlet-57243.herokuapp.com/imageurl', {
           method:'post',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
@@ -91,7 +91,7 @@ loadUser = (data) => {//從register.js抓取數據, 回應上面寫的this.state
      .then(response => response.json())
     .then(response => {
       if(response) {
-        fetch('http://localhost:3001/image', {//就Signin.js抄來的改一下
+        fetch('https://powerful-hamlet-57243.herokuapp.com/image', {//就Signin.js抄來的改一下
           method:'put',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
@@ -136,8 +136,8 @@ loadUser = (data) => {//從register.js抓取數據, 回應上面寫的this.state
           />
           <FaceRecognition box={box} imageUrl={imageUrl}/>
         </div>
-      :(//不然就是停在登入註冊頁面
-        route === 'signin' 
+      :(//不然就是停在登入註冊頁面, 可是登出都跑到註冊頁面, 影片311下面有解答0..0
+        route === 'signin' || route === 'signout'
         ? <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
         : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
        )

@@ -24,7 +24,7 @@ class Register extends React.Component  {//跟Signin.js一樣設定state
 	}
 
     onSubmitSignIn = () => {//自創功能, 回傳上面3個功能的值
-       fetch('http://localhost:3001/register', {//傳回伺服器
+       fetch('https://powerful-hamlet-57243.herokuapp.com/register', {//傳回伺服器
        	 method:'post',//默認是GET
        	 headers: {'Content-Type': 'application/json'},//回傳json格式
        	 body: JSON.stringify({//沒寫後端就無法讀取
@@ -49,7 +49,7 @@ class Register extends React.Component  {//跟Signin.js一樣設定state
 	  <main className="pa4 black-80">
 	    <div className="measure">
 	      <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
-	        <legend className="f3 fw6 ph0 mh0">註 冊</legend>
+	        <legend className="f2 fw6 ph0 mh0">註 冊</legend>
 	        <div className="mt3">
 	          <label className="db fw6 lh-copy f6" htmlFor="name">姓名</label>
 	          <input 
